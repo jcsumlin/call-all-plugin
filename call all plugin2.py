@@ -68,11 +68,7 @@ def scan_submissions(call_all_posts):
                     message = message + str(user) + " "
                 print(message)
                 submission.reply(message + bot_message)
-
-
-
-
-#            call_all_posts.append(submission.id)
+            call_all_posts.append(submission.id)
 
 def update_files(call_all_posts):
     #writes the post IDs to the file call_all_posts.txt
