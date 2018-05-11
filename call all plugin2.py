@@ -19,7 +19,7 @@ reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      password=config.get('auth', 'reddit_password'),
                      user_agent=config.get('auth', 'reddit_user_agent'),
                      username=config.get('auth', 'reddit_username'))
-
+bot_message = "\r\r^(I am a script. If I did something wrong, ) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot)"
 print("Posting as: ", reddit.user.me())
 SUBREDDIT = 'starvstheforcesofevil' #config.get('auth', 'reddit_subreddit')
 LIMIT = 1000 #config.get('auth', 'reddit_limit')
@@ -58,16 +58,16 @@ def scan_submissions(call_all_posts):
                         message = message + str(user) + " "
                     if reply == None:
                         print(message)
-                        reply = submission.reply(message)
+                        reply = submission.reply(message + bot_message)
                     elif reply != None:
                         print(message)
-                        next_reply = reddit.comment(id=reply).reply(message)
+                        next_reply = reddit.comment(id=reply).reply(message + bot_message)
             elif len(usernames) <= 2 and len(usernames) > 0:
                 message = ''
                 for user in usernames:
                     message = message + str(user) + " "
                 print(message)
-                submission.reply(message)
+                submission.reply(message + bot_message)
 
 
 
