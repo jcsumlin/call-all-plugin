@@ -21,8 +21,8 @@ reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      username=config.get('auth', 'reddit_username'))
 
 print("Posting as: ", reddit.user.me())
-SUBREDDIT = config.get('auth', 'reddit_subreddit')
-LIMIT = config.get('auth', 'reddit_limit')
+SUBREDDIT = 'starvstheforcesofevil' #config.get('auth', 'reddit_subreddit')
+LIMIT = 1000 #config.get('auth', 'reddit_limit')
 
 #If the call_all_posts text file dosn't exist, create it and initilize the enpty list.
 if not os.path.isfile("call_all_posts.txt"):
@@ -36,18 +36,39 @@ else:
 comment = []
 def scan_submissions(call_all_posts):
     global usernames
+    global message
+    global new_list
     subreddit = reddit.subreddit(SUBREDDIT)
     #for each submission that is new (up to x (limit=x) posts)
-    for submission in subreddit.new(limit=1000):
-        #if the user prefix is in the submission body and isn't a post I've seen before (prevents infinate looping)
+    for submission in subreddit.new(limit=25):
+        # if the user prefix is in the submission body and isn't a post I've seen before (prevents infinate looping)
         if 'u/' in submission.selftext and submission.id not in call_all_posts:
             print('Submission has a user!')
-            usernames = []
-            username = re.findall("u\/[A-Za-z0-9_-]{3,20}", submission.selftext) #RegEx that pulls the username from the body
-            i=0
-            while i<len(data_list):
-                new_list.append(data_list[i:i+3])
-                i+=3
+            usernames = re.findall('u\/[A-Za-z0-9_-]{3,20}', submission.selftext)  # RegEx that pulls the username from the body
+            if len(usernames) >= 3:
+                new_list = []
+                reply = None
+                i = 0
+                while i < len(usernames):
+                    new_list.append(usernames[i:i + 3])
+                    i += 3
+                for group in new_list:
+                    message = ''
+                    for user in group:
+                        message = message + str(user) + " "
+                    if reply == None:
+                        print(message)
+                        reply = submission.reply(message)
+                    elif reply != None:
+                        print(message)
+                        next_reply = reddit.comment(id=reply).reply(message)
+            elif len(usernames) <= 2 and len(usernames) > 0:
+                message = ''
+                for user in usernames:
+                    message = message + str(user) + " "
+                print(message)
+                submission.reply(message)
+
 
 
 
@@ -86,4 +107,4 @@ try:
         time.sleep(5)
 except KeyboardInterrupt:
     update_files(call_all_posts)
-    print('Interrupted')
+    print('Interrupted, files updated')
