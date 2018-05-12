@@ -42,7 +42,7 @@ def scan_submissions(call_all_posts):
     #for each submission that is new (up to x (limit=x) posts)
     for submission in subreddit.new(limit=25):
         # if the user prefix is in the submission body and isn't a post I've seen before (prevents infinate looping)
-        if 'u/' in submission.selftext and submission.id not in call_all_posts:
+        if (' u/' in submission.selftext or ' /u/' in submission.selftext) and submission.id not in call_all_posts:
             print('Submission has a user!')
             usernames = re.findall('u\/[A-Za-z0-9_-]{3,20}', submission.selftext)  # RegEx that pulls the username from the body
             if len(usernames) >= 3:
