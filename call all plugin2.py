@@ -21,8 +21,8 @@ reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      username=config.get('auth', 'reddit_username'))
 bot_message = "\r\r^(I am a script. If I did something wrong, ) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot)"
 print("Posting as: ", reddit.user.me())
-SUBREDDIT = 'starvstheforcesofevil' #config.get('auth', 'reddit_subreddit')
-LIMIT = 1000 #config.get('auth', 'reddit_limit')
+SUBREDDIT = config.get('auth', 'reddit_subreddit')
+LIMIT = config.get('auth', 'reddit_limit')
 
 #If the call_all_posts text file dosn't exist, create it and initilize the enpty list.
 if not os.path.isfile("call_all_posts.txt"):
@@ -40,7 +40,7 @@ def scan_submissions(call_all_posts):
     global new_list
     subreddit = reddit.subreddit(SUBREDDIT)
     #for each submission that is new (up to x (limit=x) posts)
-    for submission in subreddit.new(limit=25):
+    for submission in subreddit.new(limit=LIMIT):
         # if the user prefix is in the submission body and isn't a post I've seen before (prevents infinate looping)
         if (' u/' in submission.selftext or ' /u/' in submission.selftext) and submission.id not in call_all_posts:
             print('Submission has a user!')
