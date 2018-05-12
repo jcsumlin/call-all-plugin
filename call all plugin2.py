@@ -77,9 +77,11 @@ def update_files(call_all_posts):
             f.write(x + "\n")
 #START
 try:
+    debug = input('debug mode?(1/0): ')
     while True: #indeffinate looping
         scan_submissions(call_all_posts)
-        print('No posts match... sleeping for 60s')
+        if debug == 1:
+            print('No posts match... sleeping for 60s')
         #Makes it easier to interupt script fast
         time.sleep(5)
         time.sleep(5)
