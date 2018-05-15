@@ -22,7 +22,7 @@ reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
 bot_message = "\r\r^(I am a script. If I did something wrong, ) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot)"
 print("Posting as: ", reddit.user.me())
 SUBREDDIT = config.get('auth', 'reddit_subreddit')
-LIMIT = config.get('auth', 'reddit_limit')
+LIMIT = int(config.get('auth', 'reddit_limit'))
 
 #If the call_all_posts text file dosn't exist, create it and initilize the enpty list.
 if not os.path.isfile("call_all_posts.txt"):
