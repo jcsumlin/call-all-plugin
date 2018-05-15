@@ -61,7 +61,7 @@ def scan_submissions(call_all_posts):
                         reply = submission.reply(message + bot_message)
                     elif reply != None:
                         print(message)
-                        next_reply = reddit.comment(id=reply).reply(message + bot_message)
+                        reply = reddit.comment(id=reply).reply(message + bot_message)
             elif len(usernames) <= 2 and len(usernames) > 0:
                 message = ''
                 for user in usernames:
