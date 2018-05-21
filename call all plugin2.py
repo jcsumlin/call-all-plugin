@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Wed May  9 16:48:48 2018
 
@@ -11,40 +10,45 @@ import os
 import re
 import time
 import configparser
+
 config = configparser.ConfigParser()
-config.read('auth.ini') #All my usernames and passwords for the api
-#the config file is
+config.read('auth.ini')  # All my usernames and passwords for the api
+
 reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      client_secret=config.get('auth', 'reddit_client_secret'),
                      password=config.get('auth', 'reddit_password'),
-                     user_agent=config.get('auth', 'reddit_user_agent'),
+                     user_agent='All-Seeing Eye bot (by u/J_C___)',
                      username=config.get('auth', 'reddit_username'))
-bot_message = "\r\r^(I am a script. If I did something wrong, ) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot)"
 print("Posting as: ", reddit.user.me())
 SUBREDDIT = config.get('auth', 'reddit_subreddit')
 LIMIT = int(config.get('auth', 'reddit_limit'))
 
-#If the call_all_posts text file dosn't exist, create it and initilize the enpty list.
+'''
+Static variables for bot.
+'''
+bot_message = "\r\r^(I am a script. If I did something wrong, ) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot)"
+
 if not os.path.isfile("call_all_posts.txt"):
     call_all_posts = []
-#If the file does exist import the contents into a list
 else:
     with open("call_all_posts.txt", "r") as f:
-       call_all_posts = f.read()
-       call_all_posts = call_all_posts.split("\n")
-       call_all_posts = list(filter(None, call_all_posts))
-comment = []
-def scan_submissions(call_all_posts):
+        call_all_posts = f.read()
+        call_all_posts = call_all_posts.split("\n")
+        call_all_posts = list(filter(None, call_all_posts))
+
+
+def scan_submissions():
     global usernames
     global message
     global new_list
     subreddit = reddit.subreddit(SUBREDDIT)
-    #for each submission that is new (up to x (limit=x) posts)
+    # For each submission that is new (up to x (limit=x) posts)
     for submission in subreddit.new(limit=LIMIT):
-        # if the user prefix is in the submission body and isn't a post I've seen before (prevents infinate looping)
+        # If the user prefix is in the submission body and isn't a post I've seen before (prevents infinate looping)
         if (' u/' in submission.selftext or ' /u/' in submission.selftext) and submission.id not in call_all_posts:
             print('Submission has a user!')
-            usernames = re.findall('u\/[A-Za-z0-9_-]{3,20}', submission.selftext)  # RegEx that pulls the username from the body
+            # RegEx that pulls the username from the body
+            usernames = re.findall('u\/[A-Za-z0-9_-]{3,20}', submission.selftext)
             if len(usernames) >= 3:
                 new_list = []
                 reply = None
@@ -56,10 +60,10 @@ def scan_submissions(call_all_posts):
                     message = ''
                     for user in group:
                         message = message + str(user) + " "
-                    if reply == None:
+                    if reply is None:
                         print(message)
                         reply = submission.reply(message + bot_message)
-                    elif reply != None:
+                    elif reply is not None:
                         print(message)
                         reply = reddit.comment(id=reply).reply(message + bot_message)
             elif len(usernames) <= 2 and len(usernames) > 0:
@@ -69,20 +73,24 @@ def scan_submissions(call_all_posts):
                 print(message)
                 submission.reply(message + bot_message)
             call_all_posts.append(submission.id)
+            update_files(call_all_posts)
+
 
 def update_files(call_all_posts):
-    #writes the post IDs to the file call_all_posts.txt
+    # Writes the post IDs to the file call_all_posts.txt
     with open("call_all_posts.txt", "w") as f:
         for x in call_all_posts:
             f.write(x + "\n")
-#START
+
+
+# START
 try:
     debug = input('debug mode?(1/0): ')
-    while True: #indeffinate looping
-        scan_submissions(call_all_posts)
+    while True:  # Indefinite looping
+        scan_submissions()
         if debug == 1:
             print('No posts match... sleeping for 60s')
-        #Makes it easier to interupt script fast
+        # Makes it easier to interrupt script fast
         time.sleep(5)
         time.sleep(5)
         time.sleep(5)
