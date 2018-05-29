@@ -23,7 +23,7 @@ reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      password=config.get('auth', 'reddit_password'),
                      user_agent='All-Seeing Eye bot (by u/J_C___)',
                      username=config.get('auth', 'reddit_username'))
-logging.info("Logged in and posting as: ", reddit.user.me())
+logging.info("Logged in and posting as: " + reddit.user.me())
 SUBREDDIT = config.get('auth', 'reddit_subreddit')
 LIMIT = int(config.get('auth', 'reddit_limit'))
 
