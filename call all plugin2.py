@@ -10,7 +10,11 @@ import os
 import re
 import time
 import configparser
+import logging
 
+__author__ = 'jcsumlin'
+__version__ = '0.3'
+logging.basicConfig(filename='call_all.log', level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(message)s")
 config = configparser.ConfigParser()
 config.read('auth.ini')  # All my usernames and passwords for the api
 
@@ -19,7 +23,7 @@ reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      password=config.get('auth', 'reddit_password'),
                      user_agent='All-Seeing Eye bot (by u/J_C___)',
                      username=config.get('auth', 'reddit_username'))
-print("Posting as: ", reddit.user.me())
+logging.info("Logged in and posting as: ", reddit.user.me())
 SUBREDDIT = config.get('auth', 'reddit_subreddit')
 LIMIT = int(config.get('auth', 'reddit_limit'))
 
@@ -46,9 +50,11 @@ def scan_submissions():
     for submission in subreddit.new(limit=LIMIT):
         # If the user prefix is in the submission body and isn't a post I've seen before (prevents infinate looping)
         if (' u/' in submission.selftext or ' /u/' in submission.selftext) and submission.id not in call_all_posts:
-            print('Submission has a user!')
+            logging.info('Submission has a user!: ' + submission.id)
             # RegEx that pulls the username from the body
             usernames = re.findall('u\/[A-Za-z0-9_-]{3,20}', submission.selftext)
+            if submission.author in usernames:
+                usernames.remove(submission.author)
             if len(usernames) >= 3:
                 new_list = []
                 reply = None
@@ -61,16 +67,17 @@ def scan_submissions():
                     for user in group:
                         message = message + str(user) + " "
                     if reply is None:
-                        print(message)
+                        logging.info(message)
                         reply = submission.reply(message + bot_message)
+                        logging.info("Reply sent")
                     elif reply is not None:
-                        print(message)
                         reply = reddit.comment(id=reply).reply(message + bot_message)
+                        logging.info("Sub Reply sent")
             elif len(usernames) <= 2 and len(usernames) > 0:
                 message = ''
                 for user in usernames:
                     message = message + str(user) + " "
-                print(message)
+                logging.info("Reply sent")
                 submission.reply(message + bot_message)
             call_all_posts.append(submission.id)
             update_files(call_all_posts)
@@ -85,32 +92,12 @@ def update_files(call_all_posts):
 
 # START
 try:
-    debug = input('debug mode?(1/0): ')
     while True:  # Indefinite looping
         scan_submissions()
-        if debug == 1:
-            print('No posts match... sleeping for 60s')
         # Makes it easier to interrupt script fast
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
-        time.sleep(5)
+        time.sleep(15)
 except KeyboardInterrupt:
+    logging.info('Run interrupted')
+finally:
     update_files(call_all_posts)
-    print('Interrupted, files updated')
+    logging.info("Files Updated")
