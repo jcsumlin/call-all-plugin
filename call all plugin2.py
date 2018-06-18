@@ -18,7 +18,7 @@ coloredlogs.install()
 
 __author__ = 'jcsumlin'
 __version__ = '0.3'
-logging.basicConfig(filename='call_all.log', level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(message)s")
+logging.basicConfig(filename='call_all.log', level=logging.INFO, format="%(asctime)s:%(levelname)s:%(message)s")
 config = configparser.ConfigParser()
 config.read('auth.ini')  # All my usernames and passwords for the api
 pb = Pushbullet(str(config.get('auth', 'pb_key')))
