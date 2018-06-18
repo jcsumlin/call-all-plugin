@@ -11,19 +11,24 @@ import re
 import time
 import configparser
 import logging
+from pushbullet import Pushbullet
+import coloredlogs
+coloredlogs.install()
+
 
 __author__ = 'jcsumlin'
 __version__ = '0.3'
 logging.basicConfig(filename='call_all.log', level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(message)s")
 config = configparser.ConfigParser()
 config.read('auth.ini')  # All my usernames and passwords for the api
+pb = Pushbullet(str(config.get('auth', 'pb_key')))
 
 reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      client_secret=config.get('auth', 'reddit_client_secret'),
                      password=config.get('auth', 'reddit_password'),
                      user_agent='All-Seeing Eye bot (by u/J_C___)',
                      username=config.get('auth', 'reddit_username'))
-logging.info("Logged in and posting as: " + str(reddit.user.me()))
+
 SUBREDDIT = config.get('auth', 'reddit_subreddit')
 LIMIT = int(config.get('auth', 'reddit_limit'))
 
@@ -90,14 +95,24 @@ def update_files(call_all_posts):
             f.write(x + "\n")
 
 
-# START
-try:
-    while True:  # Indefinite looping
-        scan_submissions()
-        # Makes it easier to interrupt script fast
-        time.sleep(15)
-except KeyboardInterrupt:
-    logging.info('Run interrupted')
-finally:
-    update_files(call_all_posts)
-    logging.info("Files Updated")
+if __name__ == "__main__":
+    # START
+    try:
+        logging.info("------Starting Call All Bot------")
+        logging.info("Logged in and posting as:%s" % reddit.user.me())
+        while True:  # Indefinite looping
+            scan_submissions()
+            # Makes it easier to interrupt script fast
+            time.sleep(15)
+    except KeyboardInterrupt:
+        logging.info('Run interrupted')
+    except (AttributeError, praw.errors.PRAWException):
+        logging.warning("PRAW encountered an error, waiting 30s before trying again.")
+        time.sleep(30)
+        pass
+    except Exception as e:
+        logging.critical("uncaught error! %s" % e)
+    finally:
+        push = pb.push_note("SCRIPT Down", "J_CBot Call All Script is Down!")
+        update_files(call_all_posts)
+        logging.info("Files Updated")
