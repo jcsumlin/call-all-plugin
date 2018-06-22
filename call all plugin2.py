@@ -18,7 +18,7 @@ coloredlogs.install()
 
 __author__ = 'jcsumlin'
 __version__ = '0.3'
-logging.basicConfig(filename='call_all.log', level=logging.INFO, format="%(asctime)s:%(levelname)s:%(message)s")
+logging.basicConfig(filename='call_all.log', level=logging.INFO)
 config = configparser.ConfigParser()
 config.read('auth.ini')  # All my usernames and passwords for the api
 pb = Pushbullet(str(config.get('auth', 'pb_key')))
@@ -106,12 +106,22 @@ if __name__ == "__main__":
             time.sleep(15)
     except KeyboardInterrupt:
         logging.info('Run interrupted')
-    except (AttributeError, praw.errors.PRAWException):
-        logging.warning("PRAW encountered an error, waiting 30s before trying again.")
+    except (AttributeError, praw.exceptions.PRAWException) as e:
+        logging.warning("PRAW encountered an error, waiting 30s before trying again. %s" % e)
+        time.sleep(30)
+        pass
+    except praw.exceptions.APIException as e:
+        logging.warning("Reddit API encountered an error. %s" % e)
+        time.sleep(30)
+        pass
+    except praw.exceptions.ResponseException as e:
+        logging.warning("Reddit encountered a response error. %s" % e)
         time.sleep(30)
         pass
     except Exception as e:
-        logging.critical("uncaught error! %s" % e)
+        logging.critical("Uncaught error: %s" % e)
+        time.sleep(30)
+        pass
     finally:
         push = pb.push_note("SCRIPT Down", "J_CBot Call All Script is Down!")
         update_files(call_all_posts)
