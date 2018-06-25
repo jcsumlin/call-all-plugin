@@ -106,18 +106,6 @@ if __name__ == "__main__":
             time.sleep(15)
     except KeyboardInterrupt:
         logging.info('Run interrupted')
-    except (AttributeError, praw.exceptions.PRAWException) as e:
-        logging.warning("PRAW encountered an error, waiting 30s before trying again. %s" % e)
-        time.sleep(30)
-        pass
-    except praw.exceptions.APIException as e:
-        logging.warning("Reddit API encountered an error. %s" % e)
-        time.sleep(30)
-        pass
-    except praw.exceptions.ResponseException as e:
-        logging.warning("Reddit encountered a response error. %s" % e)
-        time.sleep(30)
-        pass
     except Exception as e:
         logging.critical("Uncaught error: %s" % e)
         time.sleep(30)
