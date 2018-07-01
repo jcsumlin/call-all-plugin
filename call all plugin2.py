@@ -111,8 +111,7 @@ if __name__ == "__main__":
                 logging.critical("Uncaught error: %s" % e)
                 time.sleep(30)
                 pass
-            finally:
-                update_files(call_all_posts)
-                logging.info("Files Updated")
     finally:
+        update_files(call_all_posts)
+        logging.info("Files Updated")
         push = pb.push_note("SCRIPT Down", "J_CBot Call All Script is Down!")
