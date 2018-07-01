@@ -98,19 +98,21 @@ def update_files(call_all_posts):
 if __name__ == "__main__":
     # START
     try:
-        logging.info("------Starting Call All Bot------")
-        logging.info("Logged in and posting as:%s" % reddit.user.me())
-        while True:  # Indefinite looping
-            scan_submissions()
-            # Makes it easier to interrupt script fast
-            time.sleep(15)
-    except KeyboardInterrupt:
-        logging.info('Run interrupted')
-    except Exception as e:
-        logging.critical("Uncaught error: %s" % e)
-        time.sleep(30)
-        pass
+        while True:
+            try:
+                logging.info("------Starting Call All Bot------")
+                logging.info("Logged in and posting as:%s" % reddit.user.me())
+                scan_submissions()
+                # Makes it easier to interrupt script fast
+                time.sleep(15)
+            except KeyboardInterrupt:
+                logging.info('Run interrupted')
+            except Exception as e:
+                logging.critical("Uncaught error: %s" % e)
+                time.sleep(30)
+                pass
+            finally:
+                update_files(call_all_posts)
+                logging.info("Files Updated")
     finally:
         push = pb.push_note("SCRIPT Down", "J_CBot Call All Script is Down!")
-        update_files(call_all_posts)
-        logging.info("Files Updated")
