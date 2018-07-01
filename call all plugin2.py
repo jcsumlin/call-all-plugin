@@ -98,10 +98,10 @@ def update_files(call_all_posts):
 if __name__ == "__main__":
     # START
     try:
+        logging.info("------Starting Call All Bot------")
+        logging.info("Logged in and posting as:%s" % reddit.user.me())
         while True:
             try:
-                logging.info("------Starting Call All Bot------")
-                logging.info("Logged in and posting as:%s" % reddit.user.me())
                 scan_submissions()
                 # Makes it easier to interrupt script fast
                 time.sleep(15)
