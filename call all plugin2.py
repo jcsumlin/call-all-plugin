@@ -103,6 +103,7 @@ def scan_submissions():
             #         message = message + str(user) + " "
             #     logging.info("Reply sent")
             #     submission.reply(message + bot_message)
+            submission.reply("All users have been called!" + bot_message)
             call_all_posts.append(submission.id)
             update_files(call_all_posts)
 
