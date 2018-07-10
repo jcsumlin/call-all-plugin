@@ -100,3 +100,4 @@ ENV/
 *.ini
 .idea/misc.xml
 *.xml
+call_all_posts.txt
