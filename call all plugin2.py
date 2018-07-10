@@ -35,7 +35,9 @@ LIMIT = int(config.get('auth', 'reddit_limit'))
 '''
 Static variables for bot.
 '''
-bot_message = "\r\r^(I am a script. If I did something wrong, ) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot)"
+subject = "All-Seeing Eye Bot: You have been summoned!"
+message = "Hey there %s! %s has just mentioned you in a post on r/StarVsTheForcesOfEvil titled \"**%s**\".\r\rYou can find the post at this link here: %s"
+bot_message = "\r\r___^(If you think you are recieving this message in error please) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot) ^| ^([Feedback](https://goo.gl/forms/DSPuGXV8SuKu1pV13)) ^| ^([Source](https://github.com/jcsumlin/call-all-plugin))"
 
 if not os.path.isfile("call_all_posts.txt"):
     call_all_posts = []
@@ -60,30 +62,47 @@ def scan_submissions():
             usernames = re.findall('u\/[A-Za-z0-9_-]{3,20}', submission.selftext)
             if submission.author in usernames:
                 usernames.remove(submission.author)
-            if len(usernames) >= 3:
-                new_list = []
-                reply = None
-                i = 0
-                while i < len(usernames):
-                    new_list.append(usernames[i:i + 3])
-                    i += 3
-                for group in new_list:
-                    message = ''
-                    for user in group:
-                        message = message + str(user) + " "
-                    if reply is None:
-                        logging.info(message)
-                        reply = submission.reply(message + bot_message)
-                        logging.info("Reply sent")
-                    elif reply is not None:
-                        reply = reddit.comment(id=reply).reply(message + bot_message)
-                        logging.info("Sub Reply sent")
-            elif len(usernames) <= 2 and len(usernames) > 0:
-                message = ''
-                for user in usernames:
-                    message = message + str(user) + " "
-                logging.info("Reply sent")
-                submission.reply(message + bot_message)
+            # Makes sure there are no duplicates in the list
+            duplicate_checker = []
+            for user in usernames:
+                if user not in duplicate_checker and user is not submission.author.name:
+                    duplicate_checker.append(user)
+
+            # Send Messages to users
+            for user in duplicate_checker:
+                try:
+                    reddit.redditor(user).message(subject, (message % (user, submission.author.name, submission.title, submission.url)) + bot_message)
+                    logging.info('Sent to: %s' % user)
+                except TypeError as e:
+                    logging.error('Ran into a type error: %s' % e)
+                    pass
+                except Exception as e:
+                    logging.critical('Ran into an unknown error! %s' % e)
+                    pass
+            # if len(usernames) >= 3:
+            #     new_list = []
+            #     reply = None
+            #     i = 0
+            #     while i < len(usernames):
+            #         new_list.append(usernames[i:i + 3])
+            #         i += 3
+            #     for group in new_list:
+            #         message = ''
+            #         for user in group:
+            #             message = message + str(user) + " "
+            #         if reply is None:
+            #             logging.info(message)
+            #             reply = submission.reply(message + bot_message)
+            #             logging.info("Reply sent")
+            #         elif reply is not None:
+            #             reply = reddit.comment(id=reply).reply(message + bot_message)
+            #             logging.info("Sub Reply sent")
+            # elif len(usernames) <= 2 and len(usernames) > 0:
+            #     message = ''
+            #     for user in usernames:
+            #         message = message + str(user) + " "
+            #     logging.info("Reply sent")
+            #     submission.reply(message + bot_message)
             call_all_posts.append(submission.id)
             update_files(call_all_posts)
 
