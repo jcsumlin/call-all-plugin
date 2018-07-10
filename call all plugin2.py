@@ -65,7 +65,7 @@ def scan_submissions():
             # Makes sure there are no duplicates in the list
             duplicate_checker = []
             for user in usernames:
-                if user not in duplicate_checker and user is not submission.author.name:
+                if user not in duplicate_checker and user is not str(submission.author):
                     duplicate_checker.append(user)
 
             # Send Messages to users
