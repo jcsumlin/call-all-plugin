@@ -36,7 +36,7 @@ LIMIT = int(config.get('auth', 'reddit_limit'))
 Static variables for bot.
 '''
 subject = "All-Seeing Eye Bot: You have been summoned!"
-message = "Hey there %s! %s has just mentioned you in a post on r/StarVsTheForcesOfEvil titled \"**%s**\".\r\rYou can find the post at this link here: %s"
+message = "Hey there %s! %s has just mentioned you in a post on r/StarVsTheForcesOfEvil titled \"**%s**\".\r\rYou can find the post at this link here: [HERE!](%s)"
 bot_message = "\r\r___ \r ^(If you think you are recieving this message in error please) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot) ^| [^Feedback](https://goo.gl/forms/DSPuGXV8SuKu1pV13) ^| [^Source](https://github.com/jcsumlin/call-all-plugin)"
 
 if not os.path.isfile("call_all_posts.txt"):
