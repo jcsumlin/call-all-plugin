@@ -10,18 +10,17 @@ import os
 import re
 import time
 import configparser
-import logging
-from pushbullet import Pushbullet
-import coloredlogs
-coloredlogs.install()
+from loguru import logger
+from datetime import datetime
+import random
 
 
 __author__ = 'jcsumlin'
 __version__ = '0.3'
-logging.basicConfig(filename='call_all.log', level=logging.INFO)
+log_date = str(datetime.now().month)+"-"+str(datetime.now().day)+"-"+str(datetime.now().year)
+logger.add('file_{}.log'.format(log_date), rotation="12:00", colorize=True, backtrace=False)
 config = configparser.ConfigParser()
 config.read('auth.ini')  # All my usernames and passwords for the api
-pb = Pushbullet(str(config.get('auth', 'pb_key')))
 
 reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      client_secret=config.get('auth', 'reddit_client_secret'),
@@ -36,9 +35,9 @@ LIMIT = int(config.get('auth', 'reddit_limit'))
 Static variables for bot.
 '''
 subject = "All-Seeing Eye Bot: You have been summoned!"
-message = "Hey there %s! %s has just mentioned you in a post on r/StarVsTheForcesOfEvil titled \"**%s**\".\r\rYou can find the post at this link here: [HERE!](%s)"
+message = f"Hey there %s! %s has just mentioned you in a post on r/{config.get('auth', 'reddit_subreddit')} titled \"**%s**\".\r\rYou can find the post at this link here: [HERE!](%s)"
 bot_message = "\r\r___ \r ^(If you think you are recieving this message in error please) [^(let me know)](/message/compose/?to=J_C___&subject=all_seeing_eye_bot) ^| [^Feedback](https://goo.gl/forms/DSPuGXV8SuKu1pV13) ^| [^Source](https://github.com/jcsumlin/call-all-plugin)"
-
+faces = ["(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ ✧ﾟ･: *ヽ(◕ヮ◕ヽ)", "(づ｡◕‿‿◕｡)づ", "| (• ◡•)| (❍ᴥ❍ʋ)", "ᕙ(⇀‸↼‶)ᕗ", ""]
 if not os.path.isfile("call_all_posts.txt"):
     call_all_posts = []
 else:
@@ -56,10 +55,10 @@ def scan_submissions():
     # For each submission that is new (up to x (limit=x) posts)
     for submission in subreddit.new(limit=LIMIT):
         # If the user prefix is in the submission body and isn't a post I've seen before (prevents infinate looping)
-        if (' u/' in submission.selftext or ' /u/' in submission.selftext) and submission.id not in call_all_posts:
-            logging.info('Submission has a user!: ' + submission.id)
+        if ('u/' in submission.selftext or '/u/' in submission.selftext) and submission.id not in call_all_posts:
+            logger.info('Submission has a user!: ' + submission.id)
             # RegEx that pulls the username from the body
-            usernames = re.findall('u\/[A-Za-z0-9_-]{3,20}', submission.selftext)
+            usernames = re.findall('[\/]?u\/[A-Za-z0-9_-]+', submission.selftext)
             if submission.author in usernames:
                 usernames.remove(submission.author)
             # Makes sure there are no duplicates in the list
@@ -72,12 +71,12 @@ def scan_submissions():
             for user in duplicate_checker:
                 try:
                     reddit.redditor(user).message(subject, (message % (user, submission.author.name, submission.title, submission.url)) + bot_message)
-                    logging.info('Sent to: %s' % user)
+                    logger.info('Sent to: %s' % user)
                 except TypeError as e:
-                    logging.error('Ran into a type error: %s' % e)
+                    logger.error('Ran into a type error: %s' % e)
                     pass
                 except Exception as e:
-                    logging.critical('Ran into an unknown error! %s' % e)
+                    logger.critical('Ran into an unknown error! %s' % e)
                     pass
             # if len(usernames) >= 3:
             #     new_list = []
@@ -103,7 +102,8 @@ def scan_submissions():
             #         message = message + str(user) + " "
             #     logging.info("Reply sent")
             #     submission.reply(message + bot_message)
-            submission.reply("All users have been called!" + bot_message)
+
+            submission.reply("All users have been called! " + random.choice(faces) + bot_message)
             call_all_posts.append(submission.id)
             update_files(call_all_posts)
 
@@ -118,20 +118,20 @@ def update_files(call_all_posts):
 if __name__ == "__main__":
     # START
     try:
-        logging.info("------Starting Call All Bot------")
-        logging.info("Logged in and posting as:%s" % reddit.user.me())
+        logger.info("------Starting Call All Bot------")
+        logger.info("Logged in and posting as:%s" % reddit.user.me())
         while True:
             try:
                 scan_submissions()
+                logger.info("Checked {} posts".format(LIMIT))
                 # Makes it easier to interrupt script fast
                 time.sleep(15)
             except KeyboardInterrupt:
-                logging.info('Run interrupted')
+                logger.info('Run interrupted')
             except Exception as e:
-                logging.critical("Uncaught error: %s" % e)
+                logger.critical("Uncaught error: %s" % e)
                 time.sleep(30)
                 pass
     finally:
         update_files(call_all_posts)
-        logging.info("Files Updated")
-        push = pb.push_note("SCRIPT Down", "J_CBot Call All Script is Down!")
+        logger.info("Files Updated")
