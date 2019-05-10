@@ -11,16 +11,14 @@ All you need to do is edit the auth.ini.example to hold your correct credentials
 All of the following packages can be installed with pip from the cmd line
 
 ```
-pip install praw
-pip install re
-pip install configparser
+pip install -r requirements.txt
 ```
 
 ### Installing
 
 1. Clone/Download the repository.
 2. Edit the auth.ini.example and save as auth.ini
-3. run the python file!
+3. run the `call all plugin2.py` file!
 4. DONE
 
 
