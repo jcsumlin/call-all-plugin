@@ -25,7 +25,7 @@ config.read('auth.ini')  # All my usernames and passwords for the api
 reddit = praw.Reddit(client_id=config.get('auth', 'reddit_client_id'),
                      client_secret=config.get('auth', 'reddit_client_secret'),
                      password=config.get('auth', 'reddit_password'),
-                     user_agent='All-Seeing Eye bot (by u/J_C___)',
+                     user_agent='All-Seeing Eye (by u/J_C___)',
                      username=config.get('auth', 'reddit_username'))
 
 SUBREDDIT = config.get('auth', 'reddit_subreddit')
@@ -64,6 +64,8 @@ def scan_submissions():
             # Makes sure there are no duplicates in the list
             duplicate_checker = []
             for user in usernames:
+                if user.startswith("/"):
+                    user = user[1:]
                 if user not in duplicate_checker and user is not str(submission.author):
                     duplicate_checker.append(user)
 

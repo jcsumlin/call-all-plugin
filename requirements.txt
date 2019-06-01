@@ -1,2 +1,2 @@
 loguru
-praw
+praw==6.1.1
