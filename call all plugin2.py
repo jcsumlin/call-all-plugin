@@ -130,7 +130,6 @@ if __name__ == "__main__":
         while True:
             try:
                 scan_submissions()
-                logger.info("Checked {} posts".format(LIMIT))
                 # Makes it easier to interrupt script fast
                 time.sleep(15)
             except KeyboardInterrupt:
