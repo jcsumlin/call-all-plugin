@@ -74,7 +74,7 @@ def scan_submissions():
             for user in duplicate_checker:
                 try:
                     if count == 10:
-                        time.sleep(60)
+                        time.sleep(120)
                         count = 0
                     reddit.redditor(user).message(subject, (message % (user, submission.author.name, submission.title, submission.url)) + bot_message)
                     logger.info('Sent to: %s' % user)
