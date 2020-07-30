@@ -16,7 +16,7 @@ import random
 
 
 __author__ = 'jcsumlin'
-__version__ = '0.3'
+__version__ = '0.3.1'
 log_date = str(datetime.now().month)+"-"+str(datetime.now().day)+"-"+str(datetime.now().year)
 logger.add('file_{}.log'.format(log_date), rotation="12:00", colorize=True, backtrace=False)
 config = configparser.ConfigParser()
@@ -70,10 +70,15 @@ def scan_submissions():
                     duplicate_checker.append(user)
 
             # Send Messages to users
+            count = 0
             for user in duplicate_checker:
                 try:
+                    if count == 10:
+                        time.sleep(60)
+                        count = 0
                     reddit.redditor(user).message(subject, (message % (user, submission.author.name, submission.title, submission.url)) + bot_message)
                     logger.info('Sent to: %s' % user)
+                    count += 1
                 except TypeError as e:
                     logger.error('Ran into a type error: %s' % e)
                     pass
